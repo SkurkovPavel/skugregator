@@ -1,10 +1,13 @@
 package skuParser
 
-
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/mattn/go-sqlite3"
+	"os"
 )
+
+var SkuDB *sql.DB
 //Все что связано с базой
 
 //Получаем результаты
@@ -43,16 +46,12 @@ func GetData(notification string) (map[string]string, error) {
 	return data, nil
 }
 
-func SaveData(data map[string]string) error {
-	db, err := sql.Open("sqlite3", "/home/skurkov/GoProject/igor/parser_v2/db/notifications.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
+func SaveData(data map[string]string,) error {
 
-	_, err = db.Exec("INSERT INTO notifications (number, method, platform, object, stage, date, nmc)" +
-		"VALUES ($1, $2, $3, $4, $5, $6, $7)", data["number"], data["method"], data["platform"], data["object"],
-		data["stage"], data["date"], data["nmc"])
+
+	var err error
+		_,err = SkuDB.Exec("UPDATE responses SET body = $1, time=time() WHERE site = $2", data["body"],data["site"])
+
 	if err != nil {
 		return err
 	}
@@ -60,4 +59,24 @@ func SaveData(data map[string]string) error {
 	return nil
 }
 
+func OnenSkuDB() error {
+	pwd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	dbPath := string(pwd)+"/skugregator/alias/skuDataBase.db"
+
+	SkuDB, err = sql.Open("sqlite3", dbPath)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func CloseSkuDB(db *sql.DB){
+	db.Close()
+}
 
