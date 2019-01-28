@@ -1,33 +1,11 @@
 package main
 
-import (
-	sku "./skuParser"
-	"fmt"
-	"time"
-)
+import "./skuParser"
 
-func main(){
-	ticker := time.Tick(time.Second)
-	 i := 0
+func main() {
 
-	for tickTime := range ticker {
-		i++
+	time := 60 // Время повторного рапроса в секундах
 
-		fmt.Printf("\r step %v time %v",i,tickTime.Format("15:04:05"))
-		if i == 10 {
-			res := sku.SkuPars()
-			if res == "finito" {
-				i = 0
-			}
-		}
-
-
-	}
-
-
-
-
-
-
+	skuParser.SkuParsStart(time)
 
 }

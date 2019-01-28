@@ -8,6 +8,7 @@ import (
 )
 
 var SkuDB *sql.DB
+
 //Все что связано с базой
 
 //Получаем результаты
@@ -18,9 +19,8 @@ var SkuDB *sql.DB
 
 //Сообщаем о результатах
 
-
 func GetData(notification string) (map[string]string, error) {
-	db, err := sql.Open("sqlite3", "/home/skurkov/GoProject/igor/parser_v2/db/notifications.db")
+	db, err := sql.Open("sqlite3", "../alias/skuDataBase.db")
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func GetData(notification string) (map[string]string, error) {
 
 	row := db.QueryRow("SELECT * FROM notifications WHERE number = $1", notification)
 	err = row.Scan(&number, &method, &platform, &object, &stage, &date, &nmc)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
@@ -46,11 +46,10 @@ func GetData(notification string) (map[string]string, error) {
 	return data, nil
 }
 
-func SaveData(data map[string]string,) error {
-
+func SaveData(data map[string]string) error {
 
 	var err error
-		_,err = SkuDB.Exec("UPDATE responses SET body = $1, time=time() WHERE site = $2", data["body"],data["site"])
+	_, err = SkuDB.Exec("UPDATE responses SET body = $1, time=time() WHERE site = $2", data["body"], data["site"])
 
 	if err != nil {
 		return err
@@ -66,7 +65,7 @@ func OnenSkuDB() error {
 		os.Exit(1)
 	}
 
-	dbPath := string(pwd)+"/skugregator/alias/skuDataBase.db"
+	dbPath := string(pwd) + "/skugregator/alias/skuDataBase.db"
 
 	SkuDB, err = sql.Open("sqlite3", dbPath)
 
@@ -76,7 +75,6 @@ func OnenSkuDB() error {
 	return nil
 }
 
-func CloseSkuDB(db *sql.DB){
+func CloseSkuDB(db *sql.DB) {
 	db.Close()
 }
-

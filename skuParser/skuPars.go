@@ -2,6 +2,8 @@ package skuParser
 
 import (
 	"fmt"
+	"time"
+
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -15,11 +17,6 @@ var Sites = map[string]string{
 	"trenazhery.ru": "http://www.trenazhery.ru/market2.xml",
 	"radio-liga.ru": "http://www.radio-liga.ru/yml.php",
 	"armprodukt.ru": "http://armprodukt.ru/bitrix/catalog_export/yandex.php",
-}
-
-type bodyArr struct {
-	name string
-	val  string
 }
 
 func SkuPars() string {
@@ -61,10 +58,30 @@ func skuReguest(wg *sync.WaitGroup, site, url string) {
 		fmt.Fprintf(os.Stderr, "Ошибка при получении данных с сервера: код %s", resp.Status)
 		os.Exit(1)
 	}
+
 	res["body"] = string(body)
-	res["site"] = string(site)
+	res["name"] = site
 
 	SaveData(res)
 
 	wg.Done()
+}
+
+func SkuParsStart(period int) {
+	ticker := time.Tick(time.Second)
+	i := 0
+
+	for tickTime := range ticker {
+		i++
+
+		fmt.Printf("\r step %v time %v", i, tickTime.Format("15:04:05"))
+		if i == period {
+			res := SkuPars()
+			if res == "finito" {
+				i = 0
+			}
+		}
+
+	}
+
 }
